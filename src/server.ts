@@ -2,7 +2,7 @@
 import { Server } from "http";
 import app from "./app";
 import mongoose from "mongoose";
-import { envVars } from "./config/env";
+import { envVars } from "./app/config/env";
 let server: Server;
 const port = envVars.PORT || 5000;
 async function bootstrap() {
@@ -10,6 +10,7 @@ async function bootstrap() {
     await mongoose.connect(
       `mongodb+srv://${envVars.DB_USER}:${envVars.DB_PASS}@cluster0.whnyl.mongodb.net/${envVars.DB_NAME}?retryWrites=true&w=majority&appName=Cluster0`
     );
+    console.log(`mongodb+srv://${envVars.DB_USER}:${envVars.DB_PASS}@cluster0.whnyl.mongodb.net/${envVars.DB_NAME}?retryWrites=true&w=majority&appName=Cluster0`);
     server = app.listen(port, () => {
       console.log(`Server is running on port ${port}`);
     });
