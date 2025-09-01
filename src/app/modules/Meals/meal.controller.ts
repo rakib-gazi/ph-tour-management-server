@@ -98,7 +98,7 @@ mealRoutes.get("/", async (req: Request, res: Response) => {
 
     // Build day headers dynamically (e.g. 16..30)
     const allDays = Array.from(
-      new Set(meals.flatMap((m) => m.mealsByDay.map((d) => d.day)))
+      new Set(meals.flatMap((m) => m.mealsByDay.map((d:any) => d.day)))
     ).sort((a, b) => a - b);
 
     // Transform to table-like response

@@ -1,19 +1,14 @@
 import express, { Application, Request, Response } from 'express';
-import { booksRoutes } from './app/controllers/books.controller';
-import { borrowRoutes } from './app/controllers/borrow.controller';
 import cors from "cors";
-import { userRoutes } from './modules/users/users.controller';
-import { depositRoutes } from './modules/Deposits/deposit.controller';
-import { bazarRoutes } from './modules/Bazar/bazar.controller';
-import { mealRoutes } from './modules/Meals/meal.controller';
+import { userRoutes } from './app/modules/users/users.controller';
+import { depositRoutes } from './app/modules/Deposits/deposit.controller';
+import { bazarRoutes } from './app/modules/Bazar/bazar.controller';
+import { mealRoutes } from './app/modules/Meals/meal.controller';
 const app: Application = express();
 app.use(express.json());
 app.use(cors({
     origin: ["http://localhost:5173"]
 }));
-app.use('/api/books', booksRoutes);
-app.use('/api/borrow', borrowRoutes);
-// MMS Start HERE
 app.use('/api/members', userRoutes);
 app.use('/api/deposits', depositRoutes);
 app.use('/api/bazars', bazarRoutes);
