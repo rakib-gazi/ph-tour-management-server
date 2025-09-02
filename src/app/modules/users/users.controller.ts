@@ -5,6 +5,10 @@ import httpStatus from "http-status-codes";
 import { UserServices } from "./users.service";
 import { catchAsync } from "../../utlis/catchAsync";
 import { sendResponse } from "../../utlis/sendResponse";
+import { verifyToken } from "../../utlis/jwt";
+import { envVars } from "../../config/env";
+import { JwtPayload } from "jsonwebtoken";
+import AppError from "../../errorHelpers/AppError";
 export const userRoutes = express.Router();
 
 const createUser = catchAsync(async(req:Request, res:Response, next:NextFunction)=>{
@@ -15,10 +19,6 @@ const createUser = catchAsync(async(req:Request, res:Response, next:NextFunction
       message: "User Created Successfully",
       data:user
     })
-  // res.status(httpStatus.CREATED).json({
-  //   message:"User Created Successfully",
-  //   user
-  // })
 })
 const getAllUsers = catchAsync(async(req:Request, res:Response, next:NextFunction)=>{
     const result = await UserServices.getAllUsers();
@@ -29,13 +29,29 @@ const getAllUsers = catchAsync(async(req:Request, res:Response, next:NextFunctio
       meta: result.meta,
       data:result.data,
     })
-    // res.status(httpStatus.OK).json({
-    //   success:true,
-    //   message: "All Users Retrieved Successfully",
-    //   users:users
-    // })
+})
+const updateUser = catchAsync(async(req:Request, res:Response, next:NextFunction)=>{
+  const userId = req.params.id;
+  if (!userId) {
+    throw new AppError(httpStatus.BAD_REQUEST, "User ID is required");
+  }
+  // const token = req.headers.authorization;
+  // if (!token) {
+  //   throw new AppError(httpStatus.UNAUTHORIZED, "Authorization token missing");
+  // }
+  // const verifiedToken = verifyToken(token, envVars.JWT_TOKEN as string)as JwtPayload ;
+  const verifiedToken = req.user;
+  const payload = req.body;
+  const user = await UserServices.updateUser(userId,payload,verifiedToken);
+  sendResponse(res,{
+      success:true,
+      statusCode:httpStatus.CREATED,
+      message: "User Updatd Successfully",
+      data:user
+    })
 })
 export const UserControllers = {
   createUser,
-  getAllUsers
+  getAllUsers,
+  updateUser
 }
