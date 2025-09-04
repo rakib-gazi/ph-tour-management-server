@@ -40,7 +40,7 @@ const updateUser = catchAsync(async(req:Request, res:Response, next:NextFunction
   //   throw new AppError(httpStatus.UNAUTHORIZED, "Authorization token missing");
   // }
   // const verifiedToken = verifyToken(token, envVars.JWT_TOKEN as string)as JwtPayload ;
-  const verifiedToken = req.user;
+  const verifiedToken = req.user as JwtPayload;
   const payload = req.body;
   const user = await UserServices.updateUser(userId,payload,verifiedToken);
   sendResponse(res,{

@@ -4,9 +4,20 @@ import cors from "cors";
 import { router } from './app/routes';
 import { globalErrorHandler } from './app/middlewares/global.errorHandaler';
 import notFound from './app/middlewares/notFound';
-
+import cookieParser  from "cookie-parser";
+import passport from 'passport';
+import exressSession from "express-session";
+import "./app/config/passport"
 const app: Application = express();
+app.use(exressSession({
+    secret: "your secrect",
+    resave:false,
+    saveUninitialized:false
+}))
+app.use(passport.initialize());
+app.use(passport.session())
 app.use(express.json());
+app.use(cookieParser());
 app.use(cors({
     origin: ["http://localhost:5173"]
 }));
