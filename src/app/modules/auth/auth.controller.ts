@@ -9,10 +9,35 @@ import { setAuthCookie } from "../../utlis/setcookie";
 import { JwtPayload } from "jsonwebtoken";
 import { createUserToken } from "../../utlis/userTokens";
 import { envVariable } from "../../config/env";
+import passport from "passport";
 
 const credentialsLogin = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const loginInfo = await AuthServices.credentialsLogin(req.body);
+    // const loginInfo = await AuthServices.credentialsLogin(req.body);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    passport.authenticate("local", async (err :any, user:any, info :any) => {
+      if(err){
+        return next(new AppError(httpStatus.UNAUTHORIZED, err));
+        // return new AppError(401, err)
+      }
+      if(!user){
+        return next(new AppError(httpStatus.UNAUTHORIZED, info.message));
+        // return new AppError(401, info.message)
+      }
+      const userTokens = await createUserToken(user);
+      delete user.toObject().password;
+      setAuthCookie(res, userTokens);
+      sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.OK,
+        message: "User Logged In Successfully",
+        data: {
+          accessToken : userTokens.accessToken,
+          refreshToken: userTokens.refreshToken,
+          user: user
+        },
+      });
+    })(req, res, next);
     // res.cookie("accessToken", loginInfo.accessToken,{
     //   httpOnly:true,
     //   secure:false
@@ -21,15 +46,28 @@ const credentialsLogin = catchAsync(
     //   httpOnly:true,
     //   secure:false
     // })
-    setAuthCookie(res, loginInfo);
-    sendResponse(res, {
-      success: true,
-      statusCode: httpStatus.OK,
-      message: "User Logged In Successfully",
-      data: loginInfo,
-    });
   }
 );
+// const credentialsLogin = catchAsync(
+//   async (req: Request, res: Response, next: NextFunction) => {
+//     const loginInfo = await AuthServices.credentialsLogin(req.body);
+//     // res.cookie("accessToken", loginInfo.accessToken,{
+//     //   httpOnly:true,
+//     //   secure:false
+//     // })
+//     // res.cookie("refreshToken", loginInfo.refreshToken,{
+//     //   httpOnly:true,
+//     //   secure:false
+//     // })
+//     setAuthCookie(res, loginInfo);
+//     sendResponse(res, {
+//       success: true,
+//       statusCode: httpStatus.OK,
+//       message: "User Logged In Successfully",
+//       data: loginInfo,
+//     });
+//   }
+// );
 const getNewAccessToken = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const refreshToken = req.cookies.refreshToken;
@@ -98,9 +136,9 @@ const resetPassword = catchAsync(
 );
 const googleController = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    let redirectTo = req.query.state? req.query.state as string : "";
-    if(redirectTo.startsWith("/")){
-      redirectTo= redirectTo.slice(1);
+    let redirectTo = req.query.state ? (req.query.state as string) : "";
+    if (redirectTo.startsWith("/")) {
+      redirectTo = redirectTo.slice(1);
     }
     const user = req.user;
     console.log(user);
@@ -109,7 +147,7 @@ const googleController = catchAsync(
     }
     const tokenInfo = createUserToken(user);
     setAuthCookie(res, tokenInfo);
-    res.redirect(`${envVariable.FRONTED_URL}/${redirectTo}`)
+    res.redirect(`${envVariable.FRONTED_URL}/${redirectTo}`);
   }
 );
 

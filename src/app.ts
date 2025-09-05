@@ -8,9 +8,10 @@ import cookieParser  from "cookie-parser";
 import passport from 'passport';
 import exressSession from "express-session";
 import "./app/config/passport"
+import { envVariable } from './app/config/env';
 const app: Application = express();
 app.use(exressSession({
-    secret: "your secrect",
+    secret: envVariable.Express_SESSION,
     resave:false,
     saveUninitialized:false
 }))
